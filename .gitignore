@@ -57,7 +57,7 @@ Thumbs.db
 outputs/
 results/
 plots/
-*.png
+# *.png
 *.pdf
 *.txt
 
