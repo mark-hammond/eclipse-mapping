@@ -288,7 +288,7 @@ fig = corner_module.corner(samples, labels=labels_list,
                    title_fmt='.3f',
                    use_math_text=True,
                    quiet=True)
-plt.savefig('corner_plot_wasp43b_map.png')
+plt.savefig(os.path.join(OUTPUT_DIR, 'corner_plot_wasp43b_map.png'))
 plt.close()
 
 # Print parameter comparison
@@ -387,7 +387,7 @@ plt.xlabel("Time [days from start]", fontsize=12)
 plt.ylabel("Relative Flux", fontsize=12)
 plt.title("WASP-43b Eclipse Light Curve with l=2 Map")
 
-plt.savefig('wasp43b_fit_map.png')
+plt.savefig(os.path.join(OUTPUT_DIR, 'wasp43b_fit_map.png'))
 plt.close()
 
 # Plot the maps
@@ -416,7 +416,7 @@ plt.colorbar(im1, ax=ax[1])
 ax[1].set_title("Uncertainty Map")
 
 plt.tight_layout()
-plt.savefig('wasp43b_maps.png')
+plt.savefig(os.path.join(OUTPUT_DIR, 'wasp43b_maps.png'))
 plt.close()
 
 # Plot map posterior along equator and substellar meridian
@@ -466,11 +466,11 @@ ax2.legend(fontsize=10)
 ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('wasp43b_map_profiles.png')
+plt.savefig(os.path.join(OUTPUT_DIR, 'wasp43b_map_profiles.png'))
 plt.close()
 
 # Save the fitted parameters
-with open('wasp43b_map_params.txt', 'w') as f:
+with open(os.path.join(OUTPUT_DIR, 'wasp43b_map_params.txt'), 'w') as f:
     f.write("Parameter,Mean,Std\n")
     f.write(f"planet_amp,{np.mean(trace['planet_amp']):.6f},{np.std(trace['planet_amp']):.6f}\n")
     if FIT_ORBITAL:
@@ -498,7 +498,7 @@ with open('wasp43b_map_params.txt', 'w') as f:
     f.write(f"error_inflation,{np.mean(trace['error_inflation']):.6f},{np.std(trace['error_inflation']):.6f}\n")
 
 print("\nWASP-43b analysis complete!")
-print("Generated files:")
+print(f"Generated files in {OUTPUT_DIR}/:")
 print("- wasp43b_raw_data.png")
 print("- corner_plot_wasp43b_map.png")
 print("- wasp43b_fit_map.png")
