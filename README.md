@@ -117,12 +117,3 @@ docker exec -it exoplanet_container /bin/bash
 # Remove container
 docker rm exoplanet_container
 ```
-
-## Dependencies
-
-- Python 3.9
-- starry==1.0.0
-- pymc3==3.9.3
-- numpy==1.20.3
-- matplotlib==3.3.4
-- corner==2.2.1
