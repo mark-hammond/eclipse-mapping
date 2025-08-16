@@ -55,6 +55,13 @@ RUN pip3 install --no-cache-dir dill==0.3.4
 RUN pip3 install --no-cache-dir astropy==4.2.1
 RUN pip3 install --no-cache-dir exoplanet==0.4.4
 
+RUN pip3 install --no-cache-dir numpy==1.20.3
+RUN pip3 install --no-cache-dir scipy==1.6.0
+RUN pip3 install --no-cache-dir pandas==1.3.5
+RUN pip3 install --no-cache-dir xarray==0.19.0
+RUN pip3 install --no-cache-dir matplotlib==3.3.4
+RUN pip3 install --no-cache-dir exceptiongroup==1.0.0
+
 # Set working directory
 WORKDIR /app
 

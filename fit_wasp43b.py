@@ -482,38 +482,7 @@ pc_mean_model = np.mean(pc_trace["flux"], axis=0)
 map_error_inflation = np.mean(map_trace['error_inflation'])
 pc_error_inflation = np.mean(pc_trace['error_inflation'])
 
-map_chi2 = np.sum((flux - map_mean_model)**2 / (flux_err * map_error_inflation)**2)
-pc_chi2 = np.sum((flux - pc_mean_model)**2 / (flux_err * pc_error_inflation)**2)
 
-print(f"Map Model:")
-print(f"  Error inflation: {map_error_inflation:.3f}")
-print(f"  Reduced chi-squared: {map_chi2/len(flux):.2f}")
-
-print(f"\nPhase Curve Model:")
-print(f"  Error inflation: {pc_error_inflation:.3f}")
-print(f"  Reduced chi-squared: {pc_chi2/len(flux):.2f}")
-
-# Save comparison summary
-comparison_file = os.path.join(OUTPUT_DIR, 'model_comparison_summary.txt')
-with open(comparison_file, 'w') as f:
-    f.write("WASP-43b MODEL COMPARISON SUMMARY\n")
-    f.write("="*40 + "\n\n")
-    f.write(f"Map Model:\n")
-    f.write(f"  Error inflation: {map_error_inflation:.3f}\n")
-    f.write(f"  Reduced chi-squared: {map_chi2/len(flux):.2f}\n")
-    f.write(f"  Planet amplitude: {np.mean(map_trace['planet_amp']):.6f} ± {np.std(map_trace['planet_amp']):.6f}\n\n")
-    f.write(f"Phase Curve Model:\n")
-    f.write(f"  Error inflation: {pc_error_inflation:.3f}\n")
-    f.write(f"  Reduced chi-squared: {pc_chi2/len(flux):.2f}\n")
-    f.write(f"  Planet amplitude: {np.mean(pc_trace['planet_amp']):.6f} ± {np.std(pc_trace['planet_amp']):.6f}\n\n")
-    
-    # Determine which model is better
-    if map_chi2 < pc_chi2:
-        f.write("CONCLUSION: Map model fits better (lower chi-squared)\n")
-    else:
-        f.write("CONCLUSION: Phase curve model fits better (lower chi-squared)\n")
-
-print(f"Saved model comparison summary to {comparison_file}")
 
 # Plot comparison - simple version
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))

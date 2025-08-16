@@ -26,14 +26,14 @@ python3 -c 'import numpy, starry, pymc3; print("Success!")'
 ### Run Analysis
 
 ```bash
-python3 fit_wasp43b_flexible.py
+python3 fit_wasp43b.py
 ```
 
 Results are saved in `wasp43b_results/` directory.
 
 ## Script Usage
 
-`fit_wasp43b_flexible.py` performs two types of fits:
+`fit_wasp43b.py` performs two types of fits:
 
 1. **Spherical Harmonic Map**: Recovers 2D temperature distribution
 2. **Phase Curve Model**: Fits temporal variations with Fourier series
@@ -114,6 +114,11 @@ NORMALIZE = True      # Normalize to mean=1.0 if needed
 docker start exoplanet_container
 docker exec -it exoplanet_container /bin/bash
 
-# Remove container
+# Exit container (keeps it running)
+exit
+
+# Stop and remove container
+docker stop exoplanet_container
 docker rm exoplanet_container
+
 ```
