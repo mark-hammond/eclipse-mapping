@@ -8,19 +8,15 @@ Fit eclipse map to simulated or real data
 import numpy as np
 import arviz as az
 import dill  
-import theano
 import starry
 import pickle
 import matplotlib.pyplot as plt
-import math
-import os
 import astropy.constants as const
 import netCDF4 as nc
 import math
 import pymc3 as pm
 import pymc3_ext as pmx
 import theano.tensor as tt
-import time
 from datetime import datetime
 from math import radians, cos, sin, asin, sqrt
 import argparse

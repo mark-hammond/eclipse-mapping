@@ -7,13 +7,9 @@ Functions to fit eclipse map with pixel sampling
 
 import numpy as np
 import arviz as az
-import dill  
-import theano
 import starry
-import pickle
 import matplotlib.pyplot as plt
 import math
-import os
 import astropy.constants as const
 import netCDF4 as nc
 import math
