@@ -70,3 +70,5 @@ plots/
 # Temporary files
 *.tmp
 *.temp
+
+old/
