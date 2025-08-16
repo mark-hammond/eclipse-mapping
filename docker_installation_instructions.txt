@@ -1,0 +1,63 @@
+Docker Setup Guide for Exoplanet Light Curve Mapping
+===================================================
+
+1. Install Docker Desktop
+------------------------
+- Download from: https://www.docker.com/products/docker-desktop
+- Install and start Docker Desktop
+- Verify: `docker --version`
+
+2. Setup Project
+---------------
+```bash
+cd /path/to/your/project
+```
+
+3. Build Docker Image
+--------------------
+```bash
+docker build --platform linux/amd64 -t exoplanet-mapper .
+```
+*Takes 5-10 minutes. Use --platform linux/amd64 for ARM Macs.*
+
+4. Run Container
+---------------
+```bash
+docker run -it --name exoplanet_container -v $(pwd):/app exoplanet-mapper
+```
+
+5. Verify Installation
+---------------------
+Inside container:
+```bash
+python3 -c 'import numpy, scipy, matplotlib, starry, pymc3; print("Success!")'
+```
+
+6. Use Container
+---------------
+```bash
+# Run scripts
+python3 inspect_pickle_files.py
+
+# Exit container
+exit
+```
+
+7. Container Management
+---------------------
+```bash
+# Re-enter container
+docker start exoplanet_container
+docker exec -it exoplanet_container /bin/bash
+
+# Remove container
+docker rm exoplanet_container
+```
+
+8. Troubleshooting
+-----------------
+- "docker: command not found" → Start Docker Desktop
+- Build fails → Check disk space, ensure Docker is running
+- Container won't start → `docker rm exoplanet_container` and recreate
+
+Environment includes: Python 3.9, numpy 1.20.3, scipy 1.5.4, matplotlib 3.3.4, h5py 2.10.0, theano 1.0.5, pymc3 3.9.3, starry 1.0.0 
