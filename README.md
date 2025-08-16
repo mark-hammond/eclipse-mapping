@@ -56,8 +56,6 @@ USE_RAMP = False      # Fit exponential ramp
 - `wasp43b_model_comparison.png` - Both models compared
 - `wasp43b_map_residuals.png` - Map minus phase curve residuals
 - `wasp43b_temperature_maps.png` - 2D temperature maps
-- `map_diagnostics.txt` - Fitted parameters
-- `phase_curve_diagnostics.txt` - Fitted parameters
 
 ## Adapting for Other Planets
 
