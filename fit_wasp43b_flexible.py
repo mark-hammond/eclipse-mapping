@@ -470,55 +470,6 @@ ax.grid(True, alpha=0.3)
 plt.savefig(os.path.join(OUTPUT_DIR, 'wasp43b_fit_map.png'))
 
 
-# Save simple diagnostics
-def save_model_diagnostics(trace, model_name, params, time, flux, flux_err, output_dir):
-    """Save simple model diagnostics to text file"""
-    
-    filename = os.path.join(output_dir, f'{model_name}_diagnostics.txt')
-    
-    print(f"\nSaving {model_name} diagnostics...")
-    print(f"Trace varnames: {list(trace.varnames)}")
-    
-    with open(filename, 'w') as f:
-        f.write(f"WASP-43b {model_name.upper()} MODEL RESULTS\n")
-        f.write("="*50 + "\n\n")
-        
-        # Fitted parameters
-        f.write("FITTED PARAMETERS:\n")
-        f.write("-"*30 + "\n")
-        
-        param_count = 0
-        for param in trace.varnames:
-            print(f"Checking parameter: {param}")
-            # Only exclude flux and map, include everything else
-            if param in trace and param not in ['flux', 'map']:
-                samples = trace[param]
-                mean_val = np.mean(samples)
-                std_val = np.std(samples)
-                f.write(f"{param}: {mean_val:.6f} ± {std_val:.6f}\n")
-                print(f"  {param}: {mean_val:.6f} ± {std_val:.6f}")
-                param_count += 1
-        
-        print(f"Found {param_count} parameters")
-        
-        # Model fit
-        if 'flux' in trace:
-            model_flux = np.mean(trace['flux'], axis=0)
-            error_inflation = np.mean(trace['error_inflation'])
-            chi2 = np.sum((flux - model_flux)**2 / (flux_err * error_inflation)**2)
-            f.write(f"\nChi-squared: {chi2:.2f}\n")
-            f.write(f"Reduced chi-squared: {chi2/len(flux):.2f}\n")
-            f.write(f"Error inflation: {error_inflation:.3f}\n")
-            print(f"Chi-squared: {chi2:.2f}")
-            print(f"Reduced chi-squared: {chi2/len(flux):.2f}")
-            print(f"Error inflation: {error_inflation:.3f}")
-        
-    print(f"Saved {model_name} results to {filename}")
-
-# Save diagnostics for both models
-save_model_diagnostics(map_trace, "map", params, time, flux, flux_err, OUTPUT_DIR)
-save_model_diagnostics(pc_trace, "phase_curve", params, time, flux, flux_err, OUTPUT_DIR)
-
 # Compare models
 print("\n" + "="*60)
 print("MODEL COMPARISON")
@@ -697,8 +648,8 @@ plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'wasp43b_map_profiles.png'))
 plt.close()
 
-# Plot residuals: Map model - Phase curve model
-fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+# Plot residuals: Map model - Phase curve model (split by eclipse)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
 
 t_plot = time - time[0]
 
@@ -712,24 +663,75 @@ map_84 = np.quantile(map_trace["flux"], 0.84, axis=0)
 map_minus_pc_16 = map_16 - pc_mean_model
 map_minus_pc_84 = map_84 - pc_mean_model
 
-# Plot data residuals
-ax.errorbar(t_plot, data_minus_pc, yerr=flux_err * map_error_inflation, 
-           fmt='k.', alpha=0.5, ms=3, label='Data - Phase curve model')
+# Calculate eclipse duration (approximate)
+# For a typical hot Jupiter, eclipse duration is roughly 2-4 hours
+eclipse_duration_hours = 3.0  # Conservative estimate
+eclipse_duration_days = eclipse_duration_hours / 24.0
 
-# Plot map model residuals with uncertainty
-ax.fill_between(t_plot, map_minus_pc_16, map_minus_pc_84, 
-               color='C0', alpha=0.3, label='Map - Phase curve model (1σ)')
-ax.plot(t_plot, map_minus_pc, 'C0-', linewidth=2, label='Map - Phase curve model (mean)')
+# Find the two eclipses in the data
+eclipse1_time = eclipse_time
+eclipse2_time = eclipse_time + params['per']
 
-# Add eclipse line
-ax.axvline(x=eclipse_time - time[0], color='b', linestyle='--', alpha=0.7, label='Eclipse')
-ax.axhline(y=0, color='k', linestyle='-', alpha=0.3)
+# Calculate time ranges for each eclipse (±2x eclipse duration for context)
+eclipse1_start = eclipse1_time - 2 * eclipse_duration_days
+eclipse1_end = eclipse1_time + 2 * eclipse_duration_days
+eclipse2_start = eclipse2_time - 2 * eclipse_duration_days
+eclipse2_end = eclipse2_time + 2 * eclipse_duration_days
 
-ax.set_xlabel("Time [days from start]", fontsize=12)
-ax.set_ylabel("Residual Flux", fontsize=12)
-ax.set_title("WASP-43b: Map Model Residuals Relative to Phase Curve Model")
-ax.legend(fontsize=10)
-ax.grid(True, alpha=0.3)
+# Find data points within each eclipse range
+eclipse1_mask = (time >= eclipse1_start) & (time <= eclipse1_end)
+eclipse2_mask = (time >= eclipse2_start) & (time <= eclipse2_end)
+
+# Plot first eclipse
+if np.any(eclipse1_mask):
+    t_eclipse1 = t_plot[eclipse1_mask]
+    data_eclipse1 = data_minus_pc[eclipse1_mask]
+    map_eclipse1 = map_minus_pc[eclipse1_mask]
+    map_16_eclipse1 = map_minus_pc_16[eclipse1_mask]
+    map_84_eclipse1 = map_minus_pc_84[eclipse1_mask]
+    flux_err_eclipse1 = flux_err[eclipse1_mask]
+    
+    # Center time on eclipse
+    t_eclipse1_centered = t_eclipse1 - (eclipse1_time - time[0])
+    
+    ax1.errorbar(t_eclipse1_centered, data_eclipse1, yerr=flux_err_eclipse1 * map_error_inflation, 
+               fmt='k.', alpha=0.5, ms=3, label='Data - Phase curve model')
+    ax1.fill_between(t_eclipse1_centered, map_16_eclipse1, map_84_eclipse1, 
+                   color='C0', alpha=0.3, label='Map - Phase curve model (1σ)')
+    ax1.plot(t_eclipse1_centered, map_eclipse1, 'C0-', linewidth=2, label='Map - Phase curve model (mean)')
+    ax1.axvline(x=0, color='b', linestyle='--', alpha=0.7, label='Eclipse center')
+    ax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)
+    ax1.set_ylabel("Residual Flux", fontsize=12)
+    ax1.set_title(f"WASP-43b: Eclipse 1 Residuals (Eclipse at t={eclipse1_time:.3f})")
+    ax1.legend(fontsize=10)
+    ax1.grid(True, alpha=0.3)
+    ax1.set_xlim(-eclipse_duration_days, eclipse_duration_days)
+
+# Plot second eclipse
+if np.any(eclipse2_mask):
+    t_eclipse2 = t_plot[eclipse2_mask]
+    data_eclipse2 = data_minus_pc[eclipse2_mask]
+    map_eclipse2 = map_minus_pc[eclipse2_mask]
+    map_16_eclipse2 = map_minus_pc_16[eclipse2_mask]
+    map_84_eclipse2 = map_minus_pc_84[eclipse2_mask]
+    flux_err_eclipse2 = flux_err[eclipse2_mask]
+    
+    # Center time on eclipse
+    t_eclipse2_centered = t_eclipse2 - (eclipse2_time - time[0])
+    
+    ax2.errorbar(t_eclipse2_centered, data_eclipse2, yerr=flux_err_eclipse2 * map_error_inflation, 
+               fmt='k.', alpha=0.5, ms=3, label='Data - Phase curve model')
+    ax2.fill_between(t_eclipse2_centered, map_16_eclipse2, map_84_eclipse2, 
+                   color='C0', alpha=0.3, label='Map - Phase curve model (1σ)')
+    ax2.plot(t_eclipse2_centered, map_eclipse2, 'C0-', linewidth=2, label='Map - Phase curve model (mean)')
+    ax2.axvline(x=0, color='b', linestyle='--', alpha=0.7, label='Eclipse center')
+    ax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)
+    ax2.set_xlabel("Time from Eclipse Center [days]", fontsize=12)
+    ax2.set_ylabel("Residual Flux", fontsize=12)
+    ax2.set_title(f"WASP-43b: Eclipse 2 Residuals (Eclipse at t={eclipse2_time:.3f})")
+    ax2.legend(fontsize=10)
+    ax2.grid(True, alpha=0.3)
+    ax2.set_xlim(-eclipse_duration_days, eclipse_duration_days)
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'wasp43b_map_residuals.png'))
@@ -741,6 +743,4 @@ print("- wasp43b_raw_data.png")
 print("- wasp43b_model_comparison.png")
 print("- wasp43b_temperature_maps.png")
 print("- wasp43b_map_residuals.png")
-print("- map_diagnostics.txt")
-print("- phase_curve_diagnostics.txt")
 print("- model_comparison_summary.txt")
