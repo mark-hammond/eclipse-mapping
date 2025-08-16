@@ -7,6 +7,7 @@ import pymc3 as pm
 import pymc3_ext as pmx
 import corner as corner_module
 import astropy.constants as const
+import os
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -34,6 +35,12 @@ DEVIATION_BIN_SIZE = 1  # Number of points to bin for deviation plots
 # Systematic parameters
 USE_POLYNOMIAL = True   # Whether to fit polynomial baseline
 USE_RAMP = True       # Whether to fit exponential ramp
+
+# Create output directory
+OUTPUT_DIR = "wasp43b_results"
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+    print(f"Created output directory: {OUTPUT_DIR}")
 
 # Load WASP-43b data from numpy files
 print("Loading WASP-43b data...")
@@ -124,7 +131,7 @@ plt.ylabel("Relative Flux", fontsize=12)
 plt.title("WASP-43b Light Curve Data")
 plt.legend(fontsize=10)
 plt.grid(True, alpha=0.3)
-plt.savefig('wasp43b_raw_data.png')
+plt.savefig(os.path.join(OUTPUT_DIR, 'wasp43b_raw_data.png'))
 plt.close()
 
 print('creating model')
