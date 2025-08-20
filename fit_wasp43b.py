@@ -31,7 +31,7 @@ N_CORES = 2           # Number of CPU cores to use
 # Data selection parameters
 DATA_START = None     # Start index for data slice (None for beginning)
 DATA_END = None      # End index for data slice (None for all data)
-BIN_SIZE = 10      # Number of points to bin (None for no binning)
+BIN_SIZE = 1      # Number of points to bin (None for no binning)
 DEVIATION_BIN_SIZE = 1  # Number of points to bin for deviation plots
 
 # Systematic parameters
@@ -46,9 +46,9 @@ if not os.path.exists(OUTPUT_DIR):
 
 # Load WASP-43b data from numpy files
 print("Loading WASP-43b data...")
-time = np.load('w43b_time.npy')
-flux = np.load('w43b_flux.npy')
-flux_err = np.load('w43b_error.npy')
+time = np.load('wasp43b_simulation/w43b_time.npy')
+flux = np.load('wasp43b_simulation/w43b_flux.npy')
+flux_err = np.load('wasp43b_simulation/w43b_error.npy')
 
 print(f"Loaded data: {len(time)} points")
 print(f"Time range: {time[0]:.6f} to {time[-1]:.6f}")
